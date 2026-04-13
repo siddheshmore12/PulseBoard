@@ -35,13 +35,11 @@ export function AIActions({ block }: AIActionsProps) {
   const isLoading = aiState.status === 'loading';
 
   const handleSummarize = async () => {
-    console.log('[AI] handleSummarize start. isLoading:', isLoading, 'block.id:', block.id);
+    console.log('[AI] click handler entered');
     if (isLoading) return;
 
     const summaryBlockId = `ai-summary-${Date.now()}`;
     console.log('[AI] Summarize clicked. summaryBlockId:', summaryBlockId);
-
-    // 1. Create block immediately with explicit loading status
     addBlock({
       id: summaryBlockId,
       type: 'ai-summary',
@@ -53,10 +51,12 @@ export function AIActions({ block }: AIActionsProps) {
       },
     });
 
+    console.log('[AI] summary block created:', summaryBlockId);
+
     // 2. Mark source block as loading in aiStore
     setLoading(block.id, 'summarize');
 
-    console.log('[AI] Before await runAIAction');
+    console.log('[AI] AI request started');
     const result = await runAIAction({
       action: 'summarize',
       inputText: getSourceText(block),
@@ -177,7 +177,11 @@ function AIActionButton({
 }) {
   return (
     <button
+      onPointerDown={(e) => {
+        e.stopPropagation(); // crucial for dnd-kit
+      }}
       onClick={(e) => {
+        console.log('[AI] button click event fired for', label);
         e.stopPropagation(); // prevent block drag from capturing the click
         onClick();
       }}
