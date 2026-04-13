@@ -75,24 +75,55 @@ function TextBlockContent({ block }: { block: Block }) {
 // ─── KPI Block ────────────────────────────────────────────────────────────
 
 function KPIBlockContent({ block }: { block: Block }) {
-  const value = typeof block.data.value === 'string' ? block.data.value : '—';
-  const change = typeof block.data.change === 'string' ? block.data.change : null;
-  const isPositive = change ? !change.startsWith('-') : true;
+  const updateBlockData = useWorkspaceStore((state) => state.updateBlockData);
+
+  const label = typeof block.data.label === 'string' ? block.data.label : 'KPI';
+  const value = typeof block.data.value === 'string' ? block.data.value : '';
+  const change = typeof block.data.change === 'string' ? block.data.change : '';
+
+  const isPositive = change ? !change.startsWith('-') && !change.startsWith('↓') : true;
+
+  const handleChange = (field: string, val: string) => {
+    updateBlockData(block.id, { [field]: val }, false, true);
+  };
+
+  const handleBlur = (field: string, val: string) => {
+    updateBlockData(block.id, { [field]: val }, false, false);
+  };
 
   return (
-    <div className="flex flex-col h-full justify-center gap-1">
-      <div className="flex items-center gap-1.5">
-        <PieChart size={13} className="text-indigo-500" />
-        <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">KPI</span>
+    <div className="flex flex-col h-full justify-center gap-1 pointer-events-auto">
+      <div className="flex items-center gap-1.5 mb-1">
+        <PieChart size={13} className="text-indigo-500 shrink-0" />
+        <input
+          value={label}
+          onChange={(e) => handleChange('label', e.target.value)}
+          onBlur={(e) => handleBlur('label', e.target.value)}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="text-[10px] uppercase tracking-wider font-bold text-slate-400 bg-transparent border border-transparent focus:border-indigo-100 dark:focus:border-indigo-900 focus:bg-slate-50 dark:focus:bg-slate-800/50 rounded flex-1 min-w-0 outline-none px-1 -ml-1 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
+          placeholder="LABEL"
+        />
       </div>
-      <span className="text-3xl font-bold tracking-tight text-slate-800 dark:text-slate-100 leading-none mt-1">
-        {value}
-      </span>
-      {change && (
-        <span className={`text-xs font-semibold ${isPositive ? 'text-emerald-500' : 'text-rose-500'}`}>
-          {isPositive ? '↑' : '↓'} {change}
-        </span>
-      )}
+      <input
+        value={value}
+        onChange={(e) => handleChange('value', e.target.value)}
+        onBlur={(e) => handleBlur('value', e.target.value)}
+        onPointerDown={(e) => e.stopPropagation()}
+        className="text-3xl font-bold tracking-tight text-slate-800 dark:text-slate-100 leading-none mt-1 bg-transparent border border-transparent focus:border-indigo-100 dark:focus:border-indigo-900 focus:bg-slate-50 dark:focus:bg-slate-800/50 rounded px-1 -ml-1 w-full min-w-0 outline-none transition-all placeholder:text-slate-200 dark:placeholder:text-slate-800"
+        placeholder="0.00"
+      />
+      <input
+        value={change}
+        onChange={(e) => handleChange('change', e.target.value)}
+        onBlur={(e) => handleBlur('change', e.target.value)}
+        onPointerDown={(e) => e.stopPropagation()}
+        className={`text-xs font-semibold bg-transparent border border-transparent focus:border-indigo-100 dark:focus:border-indigo-900 focus:bg-slate-50 dark:focus:bg-slate-800/50 rounded px-1 -ml-1 w-full min-w-0 outline-none transition-all ${
+          change 
+            ? isPositive ? 'text-emerald-500' : 'text-rose-500' 
+            : 'text-slate-400 dark:text-slate-500 italic'
+        }`}
+        placeholder="Trend (e.g. +12% or -5%)"
+      />
     </div>
   );
 }
