@@ -8,6 +8,8 @@ type WorkspaceStore = {
   addBlock: (block: Block) => void;
   removeBlock: (blockId: string) => void;
   updateBlockPosition: (blockId: string, x: number, y: number) => void;
+  updateBlockData: (blockId: string, data: Partial<Record<string, unknown>>) => void;
+  updateBlockTitle: (blockId: string, title: string) => void;
   resetWorkspace: () => void;
 };
 
@@ -71,6 +73,30 @@ export const useWorkspaceStore = create<WorkspaceStore>((set) => ({
           l.blockId === blockId ? { ...l, x, y } : l
         )
       }
+    };
+  }),
+  updateBlockData: (blockId, data) => set((state) => {
+    if (!state.currentWorkspace) return state;
+    return {
+      currentWorkspace: {
+        ...state.currentWorkspace,
+        blocks: state.currentWorkspace.blocks.map((b) =>
+          b.id === blockId ? { ...b, data: { ...b.data, ...data } } : b
+        ),
+        updatedAt: new Date().toISOString(),
+      },
+    };
+  }),
+  updateBlockTitle: (blockId, title) => set((state) => {
+    if (!state.currentWorkspace) return state;
+    return {
+      currentWorkspace: {
+        ...state.currentWorkspace,
+        blocks: state.currentWorkspace.blocks.map((b) =>
+          b.id === blockId ? { ...b, title } : b
+        ),
+        updatedAt: new Date().toISOString(),
+      },
     };
   }),
   resetWorkspace: () => set({ currentWorkspace: initialWorkspace })

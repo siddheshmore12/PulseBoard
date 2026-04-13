@@ -1,14 +1,14 @@
-import React, { Suspense } from 'react';
 import { useWorkspaceStore } from '../../store/workspaceStore';
 import { Card } from '../ui/Card';
-import { Skeleton } from '../ui/Skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DndContext, useDraggable } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { type Block, type LayoutItem } from '../../types/workspace';
+import React from 'react';
 
-// PERFORMANCE NOTE: Lazy loading heavier components 
-const LazyBlockContent = React.lazy(() => import('../ui/LazyBlockContent'));
+// Block content type-router (renders per block.type)
+import { BlockContent } from './BlockContent';
+
 
 // PERFORMANCE NOTE: Memoize block rendering. 
 // Unaffected blocks seamlessly bypass re-renders because Zustand preserves strict untouched object properties.
@@ -32,24 +32,26 @@ const DraggableBlock = React.memo(function DraggableBlock({ block, layoutItem }:
       className="col-span-6 md:col-span-3 lg:col-span-2 transition-colors touch-none"
     >
       <Card 
-        className={`p-5 flex flex-col h-48 transition-all cursor-move border-[1.5px] ${isDragging ? 'shadow-xl border-indigo-400 dark:border-indigo-500 scale-[1.02] z-50' : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md'}`}
+        className={`p-5 flex flex-col min-h-48 transition-all cursor-move border-[1.5px] ${isDragging ? 'shadow-xl border-indigo-400 dark:border-indigo-500 scale-[1.02] z-50' : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md'}`}
       >
         <div className="flex items-center justify-between mb-4 pointer-events-none">
-          <h3 className="font-semibold text-slate-800 dark:text-slate-200 tracking-tight text-sm">
+          <h3 className="font-semibold text-slate-800 dark:text-slate-200 tracking-tight text-sm truncate max-w-[160px]">
             {block.title || `Block (${block.type})`}
           </h3>
-          <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/80 px-2 py-1 rounded-md">
+          <span className="shrink-0 text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/80 px-2 py-1 rounded-md">
             {block.type}
           </span>
         </div>
         
-        <Suspense fallback={<Skeleton className="w-full h-full opacity-60" />}>
-          <LazyBlockContent />
-        </Suspense>
+        {/* pointer-events-auto ensures AI action buttons remain clickable */}
+        <div className="flex-1 pointer-events-auto">
+          <BlockContent block={block} />
+        </div>
       </Card>
     </div>
   );
 });
+
 
 export function CanvasArea() {
   const currentWorkspace = useWorkspaceStore((state) => state.currentWorkspace);
