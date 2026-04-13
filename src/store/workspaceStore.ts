@@ -7,6 +7,7 @@ type WorkspaceStore = {
   toggleTheme: () => void;
   addBlock: (block: Block) => void;
   removeBlock: (blockId: string) => void;
+  updateBlockPosition: (blockId: string, x: number, y: number) => void;
 };
 
 const initialWorkspace: Workspace = {
@@ -18,7 +19,7 @@ const initialWorkspace: Workspace = {
   ],
   layout: [
     { blockId: "b1", x: 0, y: 0, w: 2, h: 2 },
-    { blockId: "b2", x: 2, y: 0, w: 4, h: 3 }
+    { blockId: "b2", x: 0, y: 0, w: 4, h: 3 }
   ],
   theme: "light",
   createdAt: new Date().toISOString(),
@@ -33,7 +34,6 @@ export const useWorkspaceStore = create<WorkspaceStore>((set) => ({
     if (!state.currentWorkspace) return state;
     const newTheme = state.currentWorkspace.theme === 'light' ? 'dark' : 'light';
     
-    // Theme will be applied visually by the provider/toggles via classList
     return {
       currentWorkspace: {
         ...state.currentWorkspace,
@@ -46,7 +46,8 @@ export const useWorkspaceStore = create<WorkspaceStore>((set) => ({
     return {
       currentWorkspace: {
         ...state.currentWorkspace,
-        blocks: [...state.currentWorkspace.blocks, block]
+        blocks: [...state.currentWorkspace.blocks, block],
+        layout: [...state.currentWorkspace.layout, { blockId: block.id, x: 0, y: 0, w: 3, h: 3 }]
       }
     };
   }),
@@ -57,6 +58,17 @@ export const useWorkspaceStore = create<WorkspaceStore>((set) => ({
         ...state.currentWorkspace,
         blocks: state.currentWorkspace.blocks.filter(b => b.id !== blockId),
         layout: state.currentWorkspace.layout.filter(l => l.blockId !== blockId)
+      }
+    };
+  }),
+  updateBlockPosition: (blockId, x, y) => set((state) => {
+    if (!state.currentWorkspace) return state;
+    return {
+      currentWorkspace: {
+        ...state.currentWorkspace,
+        layout: state.currentWorkspace.layout.map((l) => 
+          l.blockId === blockId ? { ...l, x, y } : l
+        )
       }
     };
   })

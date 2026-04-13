@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
 import { Type, BarChart, PieChart, Table, Sparkles } from 'lucide-react';
+import { useWorkspaceStore } from '../../store/workspaceStore';
+import { type BlockType } from '../../types/workspace';
 
-const availableBlocks = [
+const availableBlocks: { type: BlockType; label: string; icon: React.ReactNode }[] = [
   { type: "text", label: "Text Block", icon: <Type size={18} /> },
   { type: "chart", label: "Chart", icon: <BarChart size={18} /> },
   { type: "kpi", label: "KPI Metric", icon: <PieChart size={18} /> },
@@ -10,6 +12,18 @@ const availableBlocks = [
 ];
 
 export function BlockLibrarySidebar() {
+  const addBlock = useWorkspaceStore((state) => state.addBlock);
+
+  const handleAddBlock = (type: BlockType, label: string) => {
+    const newBlock = {
+      id: `block-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      type,
+      title: label,
+      data: { content: "New Block content placeholder" }
+    };
+    addBlock(newBlock);
+  };
+
   return (
     <aside className="w-64 border-r border-[var(--border)] bg-[var(--background)] flex flex-col overflow-y-auto transition-colors duration-300">
       <div className="p-4 border-b border-[var(--border)]">
@@ -19,6 +33,7 @@ export function BlockLibrarySidebar() {
         {availableBlocks.map((block) => (
           <motion.div
             key={block.type}
+            onClick={() => handleAddBlock(block.type, block.label)}
             whileHover={{ scale: 1.02, x: 2 }}
             whileTap={{ scale: 0.98 }}
             className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/50 cursor-pointer shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all duration-200 group"
