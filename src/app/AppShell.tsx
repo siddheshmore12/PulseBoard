@@ -1,8 +1,11 @@
 import { TopToolbar } from '../components/toolbar/TopToolbar';
 import { BlockLibrarySidebar } from '../components/sidebar/BlockLibrarySidebar';
 import { CanvasArea } from '../components/canvas/CanvasArea';
+import { useWorkspacePersistence } from '../features/persistence/useWorkspacePersistence';
 
 export function AppShell() {
+  useWorkspacePersistence();
+
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden bg-[var(--background)] text-[var(--foreground)] transition-colors duration-300 font-sans">
       <TopToolbar />

@@ -8,6 +8,7 @@ type WorkspaceStore = {
   addBlock: (block: Block) => void;
   removeBlock: (blockId: string) => void;
   updateBlockPosition: (blockId: string, x: number, y: number) => void;
+  resetWorkspace: () => void;
 };
 
 const initialWorkspace: Workspace = {
@@ -71,5 +72,6 @@ export const useWorkspaceStore = create<WorkspaceStore>((set) => ({
         )
       }
     };
-  })
+  }),
+  resetWorkspace: () => set({ currentWorkspace: initialWorkspace })
 }));
