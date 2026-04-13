@@ -9,7 +9,7 @@ type WorkspaceStore = {
   addBlock: (block: Block, isRemote?: boolean) => void;
   removeBlock: (blockId: string, isRemote?: boolean) => void;
   updateBlockPosition: (blockId: string, x: number, y: number, isRemote?: boolean) => void;
-  updateBlockData: (blockId: string, data: Partial<Record<string, unknown>>, isRemote?: boolean) => void;
+  updateBlockData: (blockId: string, data: Partial<Record<string, unknown>>, isRemote?: boolean, skipEmit?: boolean) => void;
   updateBlockTitle: (blockId: string, title: string, isRemote?: boolean) => void;
   resetWorkspace: () => void;
 };
@@ -90,10 +90,10 @@ export const useWorkspaceStore = create<WorkspaceStore>((set) => ({
       }
     };
   }),
-  updateBlockData: (blockId, data, isRemote = false) => set((state) => {
+  updateBlockData: (blockId, data, isRemote = false, skipEmit = false) => set((state) => {
     if (!state.currentWorkspace) return state;
 
-    if (!isRemote) {
+    if (!isRemote && !skipEmit) {
       collaborationService.emit('block_updated', { blockId, data, userId: MY_USER_ID });
     }
 

@@ -41,7 +41,13 @@ function TextBlockContent({ block }: { block: Block }) {
   const content = typeof block.data.content === 'string' ? block.data.content : '';
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    updateBlockData(block.id, { content: e.target.value });
+    // update locally, debounce/suppress network noise
+    updateBlockData(block.id, { content: e.target.value }, false, true);
+  };
+
+  const handleTextBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+    // on blur, fire network synchronization gracefully
+    updateBlockData(block.id, { content: e.target.value }, false, false);
   };
 
   return (
@@ -54,9 +60,10 @@ function TextBlockContent({ block }: { block: Block }) {
         <textarea
           value={content}
           onChange={handleTextChange}
-          placeholder="Start typing..."
+          onBlur={handleTextBlur}
+          placeholder="Start typing your content here..."
           onPointerDown={(e) => e.stopPropagation()} // Prevent drag conflict
-          className="flex-1 w-full resize-none text-xs leading-relaxed text-slate-600 dark:text-slate-300 bg-transparent border-none focus:ring-0 focus:outline-none placeholder:text-slate-300 dark:placeholder:text-slate-600"
+          className="flex-1 w-full resize-none text-[13px] leading-relaxed font-medium text-slate-800 dark:text-slate-100 bg-transparent border border-transparent focus:border-indigo-100 dark:focus:border-indigo-900 focus:bg-slate-50 dark:focus:bg-slate-800/50 focus:ring-4 focus:ring-indigo-500/10 rounded-md p-2 -ml-2 mb-1 transition-all outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600 placeholder:italic"
         />
       </div>
       {/* AI Actions toolbar — only on text blocks */}
