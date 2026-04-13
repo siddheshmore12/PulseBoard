@@ -1,15 +1,16 @@
 import { create } from 'zustand';
 import { type Workspace, type Block } from '../types/workspace';
+import { collaborationService, MY_USER_ID } from '../features/collaboration/collaborationService';
 
 type WorkspaceStore = {
   currentWorkspace: Workspace | null;
   setWorkspace: (workspace: Workspace) => void;
-  toggleTheme: () => void;
-  addBlock: (block: Block) => void;
-  removeBlock: (blockId: string) => void;
-  updateBlockPosition: (blockId: string, x: number, y: number) => void;
-  updateBlockData: (blockId: string, data: Partial<Record<string, unknown>>) => void;
-  updateBlockTitle: (blockId: string, title: string) => void;
+  toggleTheme: (isRemote?: boolean) => void;
+  addBlock: (block: Block, isRemote?: boolean) => void;
+  removeBlock: (blockId: string, isRemote?: boolean) => void;
+  updateBlockPosition: (blockId: string, x: number, y: number, isRemote?: boolean) => void;
+  updateBlockData: (blockId: string, data: Partial<Record<string, unknown>>, isRemote?: boolean) => void;
+  updateBlockTitle: (blockId: string, title: string, isRemote?: boolean) => void;
   resetWorkspace: () => void;
 };
 
@@ -33,10 +34,14 @@ const initialWorkspace: Workspace = {
 export const useWorkspaceStore = create<WorkspaceStore>((set) => ({
   currentWorkspace: initialWorkspace,
   setWorkspace: (workspace) => set({ currentWorkspace: workspace }),
-  toggleTheme: () => set((state) => {
+  toggleTheme: (isRemote = false) => set((state) => {
     if (!state.currentWorkspace) return state;
     const newTheme = state.currentWorkspace.theme === 'light' ? 'dark' : 'light';
     
+    if (!isRemote) {
+      collaborationService.emit('theme_changed', { theme: newTheme, userId: MY_USER_ID });
+    }
+
     return {
       currentWorkspace: {
         ...state.currentWorkspace,
@@ -44,8 +49,13 @@ export const useWorkspaceStore = create<WorkspaceStore>((set) => ({
       }
     };
   }),
-  addBlock: (block) => set((state) => {
+  addBlock: (block, isRemote = false) => set((state) => {
     if (!state.currentWorkspace) return state;
+
+    if (!isRemote) {
+      collaborationService.emit('block_added', { block, userId: MY_USER_ID });
+    }
+
     return {
       currentWorkspace: {
         ...state.currentWorkspace,
@@ -54,7 +64,7 @@ export const useWorkspaceStore = create<WorkspaceStore>((set) => ({
       }
     };
   }),
-  removeBlock: (blockId) => set((state) => {
+  removeBlock: (blockId, isRemote = false) => set((state) => {
     if (!state.currentWorkspace) return state;
     return {
       currentWorkspace: {
@@ -64,8 +74,13 @@ export const useWorkspaceStore = create<WorkspaceStore>((set) => ({
       }
     };
   }),
-  updateBlockPosition: (blockId, x, y) => set((state) => {
+  updateBlockPosition: (blockId, x, y, isRemote = false) => set((state) => {
     if (!state.currentWorkspace) return state;
+
+    if (!isRemote) {
+      collaborationService.emit('block_moved', { blockId, x, y, userId: MY_USER_ID });
+    }
+
     return {
       currentWorkspace: {
         ...state.currentWorkspace,
@@ -75,8 +90,13 @@ export const useWorkspaceStore = create<WorkspaceStore>((set) => ({
       }
     };
   }),
-  updateBlockData: (blockId, data) => set((state) => {
+  updateBlockData: (blockId, data, isRemote = false) => set((state) => {
     if (!state.currentWorkspace) return state;
+
+    if (!isRemote) {
+      collaborationService.emit('block_updated', { blockId, data, userId: MY_USER_ID });
+    }
+
     return {
       currentWorkspace: {
         ...state.currentWorkspace,
@@ -87,8 +107,14 @@ export const useWorkspaceStore = create<WorkspaceStore>((set) => ({
       },
     };
   }),
-  updateBlockTitle: (blockId, title) => set((state) => {
+  updateBlockTitle: (blockId, title, isRemote = false) => set((state) => {
     if (!state.currentWorkspace) return state;
+    
+    // We can emit a block_updated for title changes too since they act as data updates visually
+    if (!isRemote) {
+      collaborationService.emit('block_updated', { blockId, data: { _title_change: title }, userId: MY_USER_ID });
+    }
+
     return {
       currentWorkspace: {
         ...state.currentWorkspace,

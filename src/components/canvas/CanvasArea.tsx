@@ -8,6 +8,7 @@ import React from 'react';
 
 // Block content type-router (renders per block.type)
 import { BlockContent } from './BlockContent';
+import { ActivityFeed } from './ActivityFeed';
 
 
 // PERFORMANCE NOTE: Memoize block rendering. 
@@ -122,6 +123,7 @@ export function CanvasArea() {
           )}
         </div>
       </main>
+      <ActivityFeed />
     </DndContext>
   );
 }

@@ -2,6 +2,7 @@ import { useWorkspaceStore } from '../../store/workspaceStore';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { Layout, Download, Upload, RotateCcw } from 'lucide-react';
 import { useRef } from 'react';
+import { PresenceUI } from './PresenceUI';
 
 export function TopToolbar() {
   const currentWorkspace = useWorkspaceStore((state) => state.currentWorkspace);
@@ -65,6 +66,9 @@ export function TopToolbar() {
         )}
         
         <div className="flex items-center gap-1.5 ml-2">
+          <PresenceUI />
+          <div className="h-4 w-px bg-slate-200 dark:bg-slate-700 mx-2 hidden sm:block"></div>
+          
           <button 
             onClick={() => fileInputRef.current?.click()}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-indigo-600 bg-slate-100 dark:bg-slate-800/80 hover:bg-indigo-50 dark:text-slate-300 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/30 rounded-md transition-colors"
