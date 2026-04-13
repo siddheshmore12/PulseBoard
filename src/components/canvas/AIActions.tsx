@@ -37,8 +37,10 @@ export function AIActions({ block }: AIActionsProps) {
   const handleSummarize = async () => {
     if (isLoading) return;
 
-    // 1. Create a new ai-summary block immediately with loading state
     const summaryBlockId = `ai-summary-${Date.now()}`;
+    console.log('[AI] Summarize clicked. summaryBlockId:', summaryBlockId);
+
+    // 1. Create block immediately with explicit loading status
     addBlock({
       id: summaryBlockId,
       type: 'ai-summary',
@@ -46,30 +48,41 @@ export function AIActions({ block }: AIActionsProps) {
       data: {
         sourceText: getSourceText(block),
         sourceBlockTitle: block.title,
-        summary: undefined, // loading — no content yet
+        status: 'loading',
       },
     });
 
-    // 2. Mark source block as loading
+    // 2. Mark source block as loading in aiStore
     setLoading(block.id, 'summarize');
 
-    // 3. Run the async mock
+    console.log('[AI] AI request started...');
     const result = await runAIAction({
       action: 'summarize',
       inputText: getSourceText(block),
       blockTitle: block.title,
     });
 
+    console.log('[AI] AI request resolved:', result);
+
     if (result.success && result.content) {
-      // 4a. Populate the summary block
-      updateBlockData(summaryBlockId, { summary: result.content });
+      // 3a. Success — write summary + flip status to 'success'
+      console.log('[AI] updating block id:', summaryBlockId, 'with success content');
+      updateBlockData(summaryBlockId, { summary: result.content, status: 'success' });
       setSuccess(block.id);
+      console.log('[AI] final state: success');
     } else {
-      // 4b. Write error into the summary block data
-      updateBlockData(summaryBlockId, { error: result.error ?? 'Generation failed.' });
+      // 3b. Failure — write error + flip status to 'error'
+      console.warn('[AI] Generation failed:', result.error);
+      console.log('[AI] updating block id:', summaryBlockId, 'with error state');
+      updateBlockData(summaryBlockId, {
+        status: 'error',
+        error: result.error ?? 'Generation failed.',
+      });
       setError(block.id, result.error ?? 'Generation failed.');
+      console.log('[AI] final state: error');
     }
   };
+
 
   const handleGenerateTitle = async () => {
     if (isLoading) return;

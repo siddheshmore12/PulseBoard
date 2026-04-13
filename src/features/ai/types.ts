@@ -25,10 +25,17 @@ export interface AIResponse {
 export interface AISummaryBlockData {
   /** Original text that was summarized */
   sourceText: string;
-  /** The generated summary (undefined while loading) */
+  /** The generated summary (populated on success) */
   summary?: string;
   /** Title of the source block for context display */
   sourceBlockTitle?: string;
+  /**
+   * Explicit status — avoids inferring loading from field absence.
+   * 'loading' → spinner shown; 'success' → summary shown; 'error' → error shown.
+   */
+  status: 'loading' | 'success' | 'error';
+  /** Error message if status === 'error' */
+  error?: string;
 }
 
 // ─── Per-block AI operation state ────────────────────────────────────────

@@ -2,7 +2,6 @@ import { Sparkles, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Block } from '../../types/workspace';
 import type { AISummaryBlockData } from '../../features/ai/types';
-import { useAIStore } from '../../store/aiStore';
 import { useWorkspaceStore } from '../../store/workspaceStore';
 import { runAIAction } from '../../features/ai/aiService';
 
@@ -13,25 +12,40 @@ interface AISummaryBlockProps {
 }
 
 export function AISummaryBlock({ block }: AISummaryBlockProps) {
-  const blockData = block.data as Partial<AISummaryBlockData> & { error?: string };
+  /**
+   * FIX: Subscribe DIRECTLY to workspaceStore for this block's data.
+   *
+   * Why this is necessary:
+   * DraggableBlock is wrapped in React.memo. Even though updateBlockData
+   * creates a new block object, dnd-kit's useDraggable spread
+   * ({...listeners} {...attributes}) can interfere with how React.memo
+   * propagates prop updates through the drag context. The stale prop
+   * means block.data.status never changes from the initial render.
+   *
+   * By subscribing directly here, AISummaryBlock always reads live data
+   * from the store regardless of whether its parent re-renders.
+   */
+  const liveData = useWorkspaceStore((state) => {
+    const found = state.currentWorkspace?.blocks.find((b) => b.id === block.id);
+    return found?.data as Partial<AISummaryBlockData> | undefined;
+  });
 
-  const aiState = useAIStore((s) => s.getBlockAIState(block.id));
-  const setLoading = useAIStore((s) => s.setBlockAILoading);
-  const setSuccess = useAIStore((s) => s.setBlockAISuccess);
-  const setError = useAIStore((s) => s.setBlockAIError);
+  // Merge: prefer live store data, fall back to initial prop data
+  const blockData: Partial<AISummaryBlockData> = liveData ?? (block.data as Partial<AISummaryBlockData>);
+
   const updateBlockData = useWorkspaceStore((s) => s.updateBlockData);
 
-  // Determine render mode: loading (no summary yet + no error), error, or populated
-  const isGenerating = !blockData.summary && !blockData.error && aiState.status !== 'error';
-  const hasError = !!blockData.error || aiState.status === 'error';
-  const errorMessage = blockData.error ?? aiState.error ?? 'Generation failed.';
+  // ── Derived state from explicit status field ──────────────────────────
+  const isGenerating = !blockData.status || blockData.status === 'loading';
+  const hasError = blockData.status === 'error';
+  const errorMessage = blockData.error ?? 'Generation failed.';
 
+  // ── Retry handler ─────────────────────────────────────────────────────
   const handleRetry = async () => {
     if (!blockData.sourceText) return;
 
-    // Clear error, enter loading
-    updateBlockData(block.id, { error: undefined, summary: undefined });
-    setLoading(block.id, 'summarize');
+    // Reset to loading
+    updateBlockData(block.id, { status: 'loading', error: undefined, summary: undefined });
 
     const result = await runAIAction({
       action: 'summarize',
@@ -40,11 +54,12 @@ export function AISummaryBlock({ block }: AISummaryBlockProps) {
     });
 
     if (result.success && result.content) {
-      updateBlockData(block.id, { summary: result.content });
-      setSuccess(block.id);
+      updateBlockData(block.id, { summary: result.content, status: 'success' });
     } else {
-      updateBlockData(block.id, { error: result.error ?? 'Generation failed.' });
-      setError(block.id, result.error ?? 'Generation failed.');
+      updateBlockData(block.id, {
+        status: 'error',
+        error: result.error ?? 'Generation failed.',
+      });
     }
   };
 
@@ -52,16 +67,14 @@ export function AISummaryBlock({ block }: AISummaryBlockProps) {
   if (isGenerating) {
     return (
       <div className="flex flex-col h-full">
-        {/* Source context */}
-        {blockData.sourceText && (
+        {blockData.sourceBlockTitle && (
           <div className="mb-3 px-2 py-1.5 rounded-md bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50">
             <p className="text-[11px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-medium mb-0.5">Source</p>
             <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
-              {blockData.sourceBlockTitle ?? 'Text block'}
+              {blockData.sourceBlockTitle}
             </p>
           </div>
         )}
-        {/* Animated generating indicator */}
         <div className="flex-1 flex flex-col items-center justify-center gap-2">
           <Loader2 size={20} className="animate-spin text-indigo-500" />
           <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">Generating summary…</p>
@@ -115,7 +128,6 @@ export function AISummaryBlock({ block }: AISummaryBlockProps) {
   // ── Populated State ──────────────────────────────────────────────────
   return (
     <div className="flex flex-col h-full gap-2 overflow-hidden">
-      {/* Source context pill */}
       {blockData.sourceBlockTitle && (
         <div className="flex items-center gap-1.5 shrink-0">
           <Sparkles size={11} className="text-indigo-500 shrink-0" />
@@ -124,11 +136,7 @@ export function AISummaryBlock({ block }: AISummaryBlockProps) {
           </span>
         </div>
       )}
-
-      {/* Divider */}
       <div className="h-px bg-indigo-100 dark:bg-indigo-900/30 shrink-0" />
-
-      {/* Summary text */}
       <div className="flex-1 overflow-hidden">
         <p className="text-[12px] leading-relaxed text-slate-600 dark:text-slate-300 line-clamp-5">
           {blockData.summary}
