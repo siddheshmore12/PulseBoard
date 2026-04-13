@@ -4,40 +4,40 @@ import { useWorkspaceStore } from '../../store/workspaceStore';
 import { type BlockType } from '../../types/workspace';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
-const baseBlocks: { type: BlockType; label: string; icon: React.ReactNode }[] = [
-  { type: "text", label: "Text Block", icon: <Type size={18} /> },
-  { type: "chart", label: "Chart", icon: <BarChart size={18} /> },
-  { type: "kpi", label: "KPI Metric", icon: <PieChart size={18} /> },
-  { type: "table", label: "Data Table", icon: <Table size={18} /> },
-  { type: "ai-summary", label: "AI Summary", icon: <Sparkles size={18} className="text-indigo-500" /> },
-];
+type LibraryItem = 
+  | { type: 'header'; id: string; label: string }
+  | { type: 'block'; id: string; blockType: BlockType; label: string; icon: React.ReactNode };
 
 /** 
  * PERFORMANCE NOTE:
- * Simulating a massive block catalog (400 items) to prove rendering scalability. 
- * Traditional rendering would cause massive DOM bloat here. We use Virtualization. 
+ * Even though this specific realistic catalog is small, we maintain the virtualization pattern
+ * (react-virtual) from Phase 5. This proves the architecture can cleanly scale to hundreds of 
+ * block definitions across many categories (like a real enterprise SaaS tool) without DOM bloat.
  */
-const availableBlocks = Array.from({ length: 400 }).map((_, i) => {
-  const base = baseBlocks[i % baseBlocks.length];
-  return {
-    ...base,
-    id: `lib-block-${i}`,
-    label: `${base.label} ${Math.floor(i / baseBlocks.length) > 0 ? `#${Math.floor(i / baseBlocks.length) + 1}` : ''}`.trim()
-  };
-});
+const libraryCatalog: LibraryItem[] = [
+  { type: 'header', id: 'h-basic', label: 'Basic' },
+  { type: 'block', id: 'b-text', blockType: 'text', label: 'Text', icon: <Type size={18} /> },
+  { type: 'block', id: 'b-kpi', blockType: 'kpi', label: 'KPI Metric', icon: <PieChart size={18} /> },
+  
+  { type: 'header', id: 'h-data', label: 'Data & Analytics' },
+  { type: 'block', id: 'b-chart', blockType: 'chart', label: 'Bar Chart', icon: <BarChart size={18} /> },
+  { type: 'block', id: 'b-table', blockType: 'table', label: 'Data Table', icon: <Table size={18} /> },
+  
+  { type: 'header', id: 'h-ai', label: 'Intelligence' },
+  { type: 'block', id: 'b-ai-summary', blockType: 'ai-summary', label: 'AI Summary', icon: <Sparkles size={18} className="text-indigo-500" /> },
+];
 
 export function BlockLibrarySidebar() {
   const addBlock = useWorkspaceStore((state) => state.addBlock);
 
-  // Parent DOM ref for measuring scroll offset
   const parentRef = useRef<HTMLDivElement>(null);
 
-  // Virtualizer config
+  // Virtualizer dynamically calculates layout heights based on element type
   const virtualizer = useVirtualizer({
-    count: availableBlocks.length,
+    count: libraryCatalog.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 64, // Approximate height of each block row (56px content + 8px gap)
-    overscan: 5,            // Pre-render a few items outside view to prevent flicker
+    estimateSize: (index) => libraryCatalog[index].type === 'header' ? 44 : 64, 
+    overscan: 5,
   });
 
   const handleAddBlock = (type: BlockType, label: string) => {
@@ -50,10 +50,12 @@ export function BlockLibrarySidebar() {
     addBlock(newBlock);
   };
 
+  const blockCount = libraryCatalog.filter(i => i.type === 'block').length;
+
   return (
     <aside className="w-64 border-r border-[var(--border)] bg-[var(--background)] flex flex-col transition-colors duration-300">
       <div className="p-4 border-b border-[var(--border)]">
-        <h2 className="font-semibold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Block Library ({availableBlocks.length})</h2>
+        <h2 className="font-semibold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Block Library ({blockCount})</h2>
       </div>
       <div 
         ref={parentRef} 
@@ -67,10 +69,10 @@ export function BlockLibrarySidebar() {
           }}
         >
           {virtualizer.getVirtualItems().map((virtualItem) => {
-            const block = availableBlocks[virtualItem.index];
+            const item = libraryCatalog[virtualItem.index];
             return (
               <div
-                key={block.id}
+                key={item.id}
                 style={{
                   position: 'absolute',
                   top: 0,
@@ -78,20 +80,26 @@ export function BlockLibrarySidebar() {
                   width: '100%',
                   height: `${virtualItem.size}px`,
                   transform: `translateY(${virtualItem.start}px)`,
-                  paddingBottom: '8px'
+                  paddingBottom: item.type === 'header' ? '4px' : '8px'
                 }}
               >
-                <button
-                  onClick={() => handleAddBlock(block.type as BlockType, block.label)}
-                  className="flex w-full h-full items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/50 cursor-pointer shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md active:scale-95 transition-all duration-200 group focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
-                >
-                  <div className="text-slate-400 dark:text-slate-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                    {block.icon}
+                {item.type === 'header' ? (
+                  <div className="flex items-end px-1 pt-4 pb-2">
+                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">{item.label}</span>
                   </div>
-                  <span className="text-sm font-medium tracking-tight text-slate-700 dark:text-slate-200 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors text-left truncate">
-                    {block.label}
-                  </span>
-                </button>
+                ) : (
+                  <button
+                    onClick={() => handleAddBlock(item.blockType, item.label)}
+                    className="flex w-full h-full items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/50 cursor-pointer shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md active:scale-95 transition-all duration-200 group focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
+                  >
+                    <div className="text-slate-400 dark:text-slate-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                      {item.icon}
+                    </div>
+                    <span className="text-sm font-medium tracking-tight text-slate-700 dark:text-slate-200 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors text-left truncate">
+                      {item.label}
+                    </span>
+                  </button>
+                )}
               </div>
             );
           })}
