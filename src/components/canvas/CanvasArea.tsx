@@ -53,7 +53,7 @@ const DraggableBlock = React.memo(function DraggableBlock({ block, layoutItem }:
           <BlockContent block={block} />
         </div>
       </Card>
-    </div>
+    </motion.div>
   );
 });
 

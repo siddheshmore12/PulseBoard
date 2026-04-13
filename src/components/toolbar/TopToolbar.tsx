@@ -44,8 +44,9 @@ export function TopToolbar() {
 
   const handleReset = () => {
     if (window.confirm('Are you sure you want to reset the workspace? This will delete all custom blocks.')) {
-      resetWorkspace();
       localStorage.removeItem('pulseboard_workspace');
+      resetWorkspace();
+      window.location.reload();
     }
   };
 
@@ -95,7 +96,7 @@ export function TopToolbar() {
           <button 
             onClick={handleReset}
             title="Reset Workspace"
-            className="flex items-center justify-center p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 dark:hover:text-red-400 rounded-lg transition-all duration-200"
+            className="flex items-center justify-center p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 dark:hover:text-red-400 rounded-lg transition-all duration-200"
           >
             <RotateCcw size={15} />
           </button>
