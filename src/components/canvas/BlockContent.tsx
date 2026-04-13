@@ -63,7 +63,7 @@ function TextBlockContent({ block }: { block: Block }) {
           onBlur={handleTextBlur}
           placeholder="Start typing your content here..."
           onPointerDown={(e) => e.stopPropagation()} // Prevent drag conflict
-          className="flex-1 w-full resize-none text-[13px] leading-relaxed font-medium text-slate-800 dark:text-slate-100 bg-transparent border border-transparent focus:border-indigo-100 dark:focus:border-indigo-900 focus:bg-slate-50 dark:focus:bg-slate-800/50 focus:ring-4 focus:ring-indigo-500/10 rounded-md p-2 -ml-2 mb-1 transition-all outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600 placeholder:italic"
+          className="flex-1 w-full resize-none text-sm leading-relaxed font-medium text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-900 border border-transparent focus:border-indigo-500/30 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-indigo-500/20 rounded-xl p-3 -ml-1 transition-all outline-none placeholder:text-slate-400 placeholder:font-normal"
         />
       </div>
       {/* AI Actions toolbar — only on text blocks */}
@@ -92,15 +92,15 @@ function KPIBlockContent({ block }: { block: Block }) {
   };
 
   return (
-    <div className="flex flex-col h-full justify-center gap-1 pointer-events-auto">
-      <div className="flex items-center gap-1.5 mb-1">
-        <PieChart size={13} className="text-indigo-500 shrink-0" />
+    <div className="flex flex-col h-full justify-center space-y-2 pointer-events-auto p-1">
+      <div className="flex items-center gap-1.5">
+        <PieChart size={14} className="text-indigo-500 shrink-0" />
         <input
           value={label}
           onChange={(e) => handleChange('label', e.target.value)}
           onBlur={(e) => handleBlur('label', e.target.value)}
           onPointerDown={(e) => e.stopPropagation()}
-          className="text-[10px] uppercase tracking-wider font-bold text-slate-400 bg-transparent border border-transparent focus:border-indigo-100 dark:focus:border-indigo-900 focus:bg-slate-50 dark:focus:bg-slate-800/50 rounded flex-1 min-w-0 outline-none px-1 -ml-1 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
+          className="text-xs uppercase tracking-wider font-semibold text-slate-500 bg-transparent border border-transparent focus:border-indigo-100 dark:focus:border-indigo-900 focus:bg-slate-50 dark:focus:bg-slate-800/50 rounded flex-1 min-w-0 outline-none px-1.5 py-0.5 -ml-1.5 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
           placeholder="LABEL"
         />
       </div>
@@ -109,7 +109,7 @@ function KPIBlockContent({ block }: { block: Block }) {
         onChange={(e) => handleChange('value', e.target.value)}
         onBlur={(e) => handleBlur('value', e.target.value)}
         onPointerDown={(e) => e.stopPropagation()}
-        className="text-3xl font-bold tracking-tight text-slate-800 dark:text-slate-100 leading-none mt-1 bg-transparent border border-transparent focus:border-indigo-100 dark:focus:border-indigo-900 focus:bg-slate-50 dark:focus:bg-slate-800/50 rounded px-1 -ml-1 w-full min-w-0 outline-none transition-all placeholder:text-slate-200 dark:placeholder:text-slate-800"
+        className="text-3xl font-bold tracking-tight text-slate-800 dark:text-slate-100 leading-none bg-transparent border border-transparent focus:border-indigo-100 dark:focus:border-indigo-900 focus:bg-slate-50 dark:focus:bg-slate-800/50 rounded px-1.5 py-1 -ml-1.5 w-full min-w-0 outline-none transition-all placeholder:text-slate-200 dark:placeholder:text-slate-800"
         placeholder="0.00"
       />
       <input
@@ -117,9 +117,9 @@ function KPIBlockContent({ block }: { block: Block }) {
         onChange={(e) => handleChange('change', e.target.value)}
         onBlur={(e) => handleBlur('change', e.target.value)}
         onPointerDown={(e) => e.stopPropagation()}
-        className={`text-xs font-semibold bg-transparent border border-transparent focus:border-indigo-100 dark:focus:border-indigo-900 focus:bg-slate-50 dark:focus:bg-slate-800/50 rounded px-1 -ml-1 w-full min-w-0 outline-none transition-all ${
+        className={`text-sm font-medium bg-transparent border border-transparent focus:border-indigo-100 dark:focus:border-indigo-900 focus:bg-slate-50 dark:focus:bg-slate-800/50 rounded px-1.5 py-0.5 -ml-1.5 w-full min-w-0 outline-none transition-all ${
           change 
-            ? isPositive ? 'text-emerald-500' : 'text-rose-500' 
+            ? isPositive ? 'text-green-500' : 'text-red-500' 
             : 'text-slate-400 dark:text-slate-500 italic'
         }`}
         placeholder="Trend (e.g. +12% or -5%)"

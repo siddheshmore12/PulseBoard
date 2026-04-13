@@ -50,7 +50,7 @@ export function TopToolbar() {
   };
 
   return (
-    <header className="h-14 border-b border-[var(--border)] bg-[var(--background)] flex items-center justify-between px-4 z-10 sticky top-0 transition-colors duration-300">
+    <header className="h-[60px] border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-[#0b1120]/80 backdrop-blur-md flex items-center justify-between px-6 z-10 sticky top-0 transition-colors duration-300 shadow-sm">
       <div className="flex items-center gap-2">
         <div className="bg-indigo-600 text-white p-1.5 rounded-lg shadow-sm">
           <Layout size={18} />
@@ -65,13 +65,13 @@ export function TopToolbar() {
           </span>
         )}
         
-        <div className="flex items-center gap-1.5 ml-2">
+        <div className="flex items-center gap-2 ml-2">
           <PresenceUI />
-          <div className="h-4 w-px bg-slate-200 dark:bg-slate-700 mx-2 hidden sm:block"></div>
+          <div className="h-5 w-px bg-slate-200 dark:bg-slate-800 mx-2 hidden sm:block"></div>
           
           <button 
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-indigo-600 bg-slate-100 dark:bg-slate-800/80 hover:bg-indigo-50 dark:text-slate-300 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/30 rounded-md transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-lg transition-all duration-200"
           >
             <Upload size={14} /> <span className="hidden sm:inline">Import</span>
           </button>
@@ -85,21 +85,23 @@ export function TopToolbar() {
           
           <button 
             onClick={handleExport}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-indigo-600 bg-slate-100 dark:bg-slate-800/80 hover:bg-indigo-50 dark:text-slate-300 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/30 rounded-md transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-lg transition-all duration-200"
           >
             <Download size={14} /> <span className="hidden sm:inline">Export</span>
           </button>
 
+          <div className="h-5 w-px bg-slate-200 dark:bg-slate-800 mx-1 hidden sm:block"></div>
+
           <button 
             onClick={handleReset}
             title="Reset Workspace"
-            className="flex items-center justify-center p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 dark:hover:text-red-400 rounded-md transition-colors ml-1"
+            className="flex items-center justify-center p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 dark:hover:text-red-400 rounded-lg transition-all duration-200"
           >
-            <RotateCcw size={16} />
+            <RotateCcw size={15} />
           </button>
         </div>
 
-        <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 mx-1"></div>
+        <div className="h-5 w-px bg-slate-200 dark:bg-slate-800 mx-2"></div>
         <ThemeToggle />
       </div>
     </header>

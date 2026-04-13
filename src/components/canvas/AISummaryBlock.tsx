@@ -67,27 +67,20 @@ export function AISummaryBlock({ block }: AISummaryBlockProps) {
   // ── Loading State ────────────────────────────────────────────────────
   if (isGenerating) {
     return (
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full bg-indigo-50/30 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-800/50 p-2">
         {blockData.sourceBlockTitle && (
-          <div className="mb-3 px-2 py-1.5 rounded-md bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50">
-            <p className="text-[11px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-medium mb-0.5">Source</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
-              {blockData.sourceBlockTitle}
-            </p>
+          <div className="mb-2 px-2 py-1.5 flex items-center justify-between">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-400">AI Insight</span>
           </div>
         )}
-        <div className="flex-1 flex flex-col items-center justify-center gap-2">
-          <Loader2 size={20} className="animate-spin text-indigo-500" />
-          <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">Generating summary…</p>
-          <div className="flex gap-1 mt-1">
-            {[0, 1, 2].map((i) => (
-              <motion.div
-                key={i}
-                className="w-1.5 h-1.5 rounded-full bg-indigo-400"
-                animate={{ opacity: [0.3, 1, 0.3] }}
-                transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
-              />
-            ))}
+        <div className="flex-1 flex flex-col items-center justify-center gap-3">
+          <div className="relative">
+            <div className="absolute inset-0 border-2 border-indigo-200 dark:border-indigo-800 rounded-full animate-ping opacity-20"></div>
+            <Loader2 size={24} className="animate-spin text-indigo-500 relative z-10" />
+          </div>
+          <div className="flex flex-col items-center gap-1.5">
+            <div className="h-2 w-24 bg-indigo-100 dark:bg-indigo-900/30 rounded-full animate-pulse"></div>
+            <div className="h-2 w-16 bg-indigo-100 dark:bg-indigo-900/30 rounded-full animate-pulse opacity-70"></div>
           </div>
         </div>
       </div>
@@ -128,21 +121,27 @@ export function AISummaryBlock({ block }: AISummaryBlockProps) {
 
   // ── Populated State ──────────────────────────────────────────────────
   return (
-    <div className="flex flex-col h-full gap-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-2 overflow-hidden bg-gradient-to-br from-indigo-50/50 to-white dark:from-indigo-900/20 dark:to-slate-900 p-3 rounded-xl border border-indigo-100 dark:border-indigo-800/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)] dark:shadow-none">
+      <div className="flex items-center justify-between shrink-0 mb-1">
+        <div className="flex items-center gap-1.5">
+          <Sparkles size={13} className="text-indigo-500 shrink-0" />
+          <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest">
+            AI Insight
+          </span>
+        </div>
+      </div>
+      <div className="flex-1 overflow-hidden">
+        <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300 italic font-medium line-clamp-4">
+          "{blockData.summary}"
+        </p>
+      </div>
       {blockData.sourceBlockTitle && (
-        <div className="flex items-center gap-1.5 shrink-0">
-          <Sparkles size={11} className="text-indigo-500 shrink-0" />
-          <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium truncate">
-            From: {blockData.sourceBlockTitle}
+        <div className="mt-auto pt-2 flex items-center gap-1.5 shrink-0 opacity-60">
+          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium truncate">
+            Based on: {blockData.sourceBlockTitle}
           </span>
         </div>
       )}
-      <div className="h-px bg-indigo-100 dark:bg-indigo-900/30 shrink-0" />
-      <div className="flex-1 overflow-hidden">
-        <p className="text-[12px] leading-relaxed text-slate-600 dark:text-slate-300 line-clamp-5">
-          {blockData.summary}
-        </p>
-      </div>
     </div>
   );
 }
