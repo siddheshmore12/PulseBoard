@@ -35,6 +35,7 @@ export function AIActions({ block }: AIActionsProps) {
   const isLoading = aiState.status === 'loading';
 
   const handleSummarize = async () => {
+    console.log('[AI] handleSummarize start. isLoading:', isLoading, 'block.id:', block.id);
     if (isLoading) return;
 
     const summaryBlockId = `ai-summary-${Date.now()}`;
@@ -55,18 +56,17 @@ export function AIActions({ block }: AIActionsProps) {
     // 2. Mark source block as loading in aiStore
     setLoading(block.id, 'summarize');
 
-    console.log('[AI] AI request started...');
+    console.log('[AI] Before await runAIAction');
     const result = await runAIAction({
       action: 'summarize',
       inputText: getSourceText(block),
       blockTitle: block.title,
     });
-
-    console.log('[AI] AI request resolved:', result);
+    console.log('[AI] After await runAIAction. Result:', result);
 
     if (result.success && result.content) {
       // 3a. Success — write summary + flip status to 'success'
-      console.log('[AI] updating block id:', summaryBlockId, 'with success content');
+      console.log('[AI] writing summary to block.data.summary');
       updateBlockData(summaryBlockId, { summary: result.content, status: 'success' });
       setSuccess(block.id);
       console.log('[AI] final state: success');

@@ -36,7 +36,8 @@ export function AISummaryBlock({ block }: AISummaryBlockProps) {
   const updateBlockData = useWorkspaceStore((s) => s.updateBlockData);
 
   // ── Derived state from explicit status field ──────────────────────────
-  const isGenerating = !blockData.status || blockData.status === 'loading';
+  const hasPopulatedSummary = !!blockData.summary;
+  const isGenerating = (!hasPopulatedSummary && !blockData.status) || blockData.status === 'loading';
   const hasError = blockData.status === 'error';
   const errorMessage = blockData.error ?? 'Generation failed.';
 

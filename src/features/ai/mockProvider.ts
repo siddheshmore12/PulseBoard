@@ -54,6 +54,7 @@ function simulateLatency(min = 900, max = 2200): Promise<void> {
  */
 export class MockAIProvider implements AIProvider {
   async run(request: AIRequest): Promise<AIResponse> {
+    console.log('[AI] MockAIProvider.run() executed for action:', request.action);
     await simulateLatency();
 
     if (maybeFailure()) {
