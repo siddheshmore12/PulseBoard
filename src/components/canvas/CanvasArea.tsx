@@ -25,15 +25,19 @@ const DraggableBlock = React.memo(function DraggableBlock({ block, layoutItem }:
   };
 
   return (
-    <div 
+    <motion.div 
       ref={setNodeRef} 
       style={style} 
       {...listeners} 
       {...attributes} 
-      className="col-span-6 md:col-span-3 lg:col-span-2 transition-colors touch-none"
+      initial={{ opacity: 0, scale: 0.96, y: 15 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.96, y: -15 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="col-span-6 md:col-span-3 lg:col-span-2 touch-none origin-center"
     >
       <Card 
-        className={`p-5 flex flex-col min-h-48 cursor-move border ${isDragging ? 'shadow-xl border-indigo-500/50 dark:border-indigo-400/50 scale-[1.02] z-50 ring-4 ring-indigo-500/10' : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'}`}
+        className={`p-6 flex flex-col min-h-[220px] cursor-move border transition-all duration-300 bg-white dark:bg-slate-900 ${isDragging ? 'shadow-2xl border-indigo-500 dark:border-indigo-400 scale-[1.03] z-50 ring-2 ring-indigo-500 shadow-indigo-500/20' : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xl hover:-translate-y-1'}`}
       >
         <div className="flex items-center justify-between mb-4 pointer-events-none">
           <h3 className="font-semibold text-slate-800 dark:text-slate-200 tracking-tight text-sm truncate max-w-[160px]">
@@ -90,13 +94,13 @@ export function CanvasArea() {
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <main 
-        className="flex-1 bg-slate-50/50 dark:bg-[#0b1120] overflow-y-auto p-8 transition-colors duration-300 relative z-0"
+        className="flex-1 bg-slate-100 dark:bg-slate-900/60 overflow-y-auto p-8 lg:p-12 transition-colors duration-300 relative z-0"
         style={{
-          backgroundImage: 'linear-gradient(to right, #80808012 1px, transparent 1px), linear-gradient(to bottom, #80808012 1px, transparent 1px)',
-          backgroundSize: '24px 24px'
+          backgroundImage: 'linear-gradient(to right, #8080801a 1px, transparent 1px), linear-gradient(to bottom, #8080801a 1px, transparent 1px)',
+          backgroundSize: '32px 32px'
         }}
       >
-        <div className="max-w-6xl mx-auto relative z-10">
+        <div className="max-w-7xl mx-auto relative z-10">
           <motion.div 
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
@@ -117,7 +121,7 @@ export function CanvasArea() {
               <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Your canvas is empty. Add a block from the sidebar to begin.</p>
             </motion.div>
           ) : (
-            <div className="grid grid-cols-6 gap-6">
+            <div className="grid grid-cols-6 gap-8">
               <AnimatePresence>
                 {currentWorkspace.blocks.map((block) => {
                   // Fallback ensures no blocks crash natively if layout bindings split unexpectedly

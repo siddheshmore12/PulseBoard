@@ -63,7 +63,7 @@ function TextBlockContent({ block }: { block: Block }) {
           onBlur={handleTextBlur}
           placeholder="Start typing your content here..."
           onPointerDown={(e) => e.stopPropagation()} // Prevent drag conflict
-          className="flex-1 w-full resize-none text-sm leading-relaxed font-medium text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-900 border border-transparent focus:border-indigo-500/30 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-indigo-500/20 rounded-xl p-3 -ml-1 transition-all outline-none placeholder:text-slate-400 placeholder:font-normal"
+          className="flex-1 w-full min-h-[140px] resize-none text-[15px] leading-relaxed font-medium text-slate-800 dark:text-slate-100 bg-transparent border-none focus:outline-none focus:ring-0 p-0 transition-all outline-none placeholder:text-slate-400 placeholder:font-normal"
         />
       </div>
       {/* AI Actions toolbar — only on text blocks */}
@@ -92,16 +92,16 @@ function KPIBlockContent({ block }: { block: Block }) {
   };
 
   return (
-    <div className="flex flex-col h-full justify-center space-y-2 pointer-events-auto p-1">
-      <div className="flex items-center gap-1.5">
-        <PieChart size={14} className="text-indigo-500 shrink-0" />
+    <div className="flex flex-col h-full justify-center space-y-1.5 pointer-events-auto p-4 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl border-l-4 border-l-indigo-500">
+      <div className="flex items-center gap-1.5 opacity-80">
+        <PieChart size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
         <input
           value={label}
           onChange={(e) => handleChange('label', e.target.value)}
           onBlur={(e) => handleBlur('label', e.target.value)}
           onPointerDown={(e) => e.stopPropagation()}
-          className="text-xs uppercase tracking-wider font-semibold text-slate-500 bg-transparent border border-transparent focus:border-indigo-100 dark:focus:border-indigo-900 focus:bg-slate-50 dark:focus:bg-slate-800/50 rounded flex-1 min-w-0 outline-none px-1.5 py-0.5 -ml-1.5 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
-          placeholder="LABEL"
+          className="text-xs uppercase tracking-wider font-semibold text-slate-600 dark:text-slate-400 bg-transparent border-none focus:outline-none focus:ring-0 flex-1 min-w-0 px-0 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
+          placeholder="KPI LABEL"
         />
       </div>
       <input
@@ -109,7 +109,7 @@ function KPIBlockContent({ block }: { block: Block }) {
         onChange={(e) => handleChange('value', e.target.value)}
         onBlur={(e) => handleBlur('value', e.target.value)}
         onPointerDown={(e) => e.stopPropagation()}
-        className="text-3xl font-bold tracking-tight text-slate-800 dark:text-slate-100 leading-none bg-transparent border border-transparent focus:border-indigo-100 dark:focus:border-indigo-900 focus:bg-slate-50 dark:focus:bg-slate-800/50 rounded px-1.5 py-1 -ml-1.5 w-full min-w-0 outline-none transition-all placeholder:text-slate-200 dark:placeholder:text-slate-800"
+        className="text-[34px] font-bold tracking-tight text-slate-900 dark:text-white leading-none bg-transparent border-none focus:outline-none focus:ring-0 w-full min-w-0 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-700"
         placeholder="0.00"
       />
       <input
@@ -117,9 +117,9 @@ function KPIBlockContent({ block }: { block: Block }) {
         onChange={(e) => handleChange('change', e.target.value)}
         onBlur={(e) => handleBlur('change', e.target.value)}
         onPointerDown={(e) => e.stopPropagation()}
-        className={`text-sm font-medium bg-transparent border border-transparent focus:border-indigo-100 dark:focus:border-indigo-900 focus:bg-slate-50 dark:focus:bg-slate-800/50 rounded px-1.5 py-0.5 -ml-1.5 w-full min-w-0 outline-none transition-all ${
+        className={`text-sm font-semibold bg-transparent border-none focus:outline-none focus:ring-0 w-full min-w-0 transition-all ${
           change 
-            ? isPositive ? 'text-green-500' : 'text-red-500' 
+            ? isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' 
             : 'text-slate-400 dark:text-slate-500 italic'
         }`}
         placeholder="Trend (e.g. +12% or -5%)"
