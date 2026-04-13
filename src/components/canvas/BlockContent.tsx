@@ -2,6 +2,7 @@ import { Sparkles, BarChart2, Table2, PieChart, Type } from 'lucide-react';
 import type { Block } from '../../types/workspace';
 import { AISummaryBlock } from '../canvas/AISummaryBlock';
 import { AIActions } from '../canvas/AIActions';
+import { useWorkspaceStore } from '../../store/workspaceStore';
 
 // ─── Props ────────────────────────────────────────────────────────────────
 
@@ -35,21 +36,28 @@ export function BlockContent({ block }: BlockContentProps) {
 // ─── Text Block ───────────────────────────────────────────────────────────
 
 function TextBlockContent({ block }: { block: Block }) {
-  const content =
-    typeof block.data.content === 'string'
-      ? block.data.content
-      : 'Click AI actions below to generate or rewrite content.';
+  const updateBlockData = useWorkspaceStore((state) => state.updateBlockData);
+
+  const content = typeof block.data.content === 'string' ? block.data.content : '';
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    updateBlockData(block.id, { content: e.target.value });
+  };
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden mb-2 pointer-events-auto">
         <div className="flex items-center gap-1.5 mb-2">
           <Type size={12} className="text-slate-400" />
           <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Text</span>
         </div>
-        <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-300 line-clamp-4">
-          {content}
-        </p>
+        <textarea
+          value={content}
+          onChange={handleTextChange}
+          placeholder="Start typing..."
+          onPointerDown={(e) => e.stopPropagation()} // Prevent drag conflict
+          className="flex-1 w-full resize-none text-xs leading-relaxed text-slate-600 dark:text-slate-300 bg-transparent border-none focus:ring-0 focus:outline-none placeholder:text-slate-300 dark:placeholder:text-slate-600"
+        />
       </div>
       {/* AI Actions toolbar — only on text blocks */}
       <AIActions block={block} />
