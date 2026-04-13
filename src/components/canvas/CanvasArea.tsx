@@ -1,18 +1,27 @@
+import React, { Suspense } from 'react';
 import { useWorkspaceStore } from '../../store/workspaceStore';
 import { Card } from '../ui/Card';
 import { Skeleton } from '../ui/Skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DndContext, useDraggable } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
-import { type Block, type LayoutItem } from '../../types/workspace';
+import { type Block } from '../../types/workspace';
 
-function DraggableBlock({ block, layoutItem }: { block: Block, layoutItem: LayoutItem }) {
+// 1. PERFORMANCE NOTE: Lazy loading heavier components 
+const LazyBlockContent = React.lazy(() => import('../ui/LazyBlockContent'));
+
+// 2. PERFORMANCE NOTE: Memoize block rendering to prevent cascade re-renders
+const DraggableBlock = React.memo(function DraggableBlock({ block }: { block: Block }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: block.id,
   });
 
+  // 3. PERFORMANCE NOTE: Select precise layout coordinates natively without subscribing to entire store object
+  const layoutX = useWorkspaceStore(state => state.currentWorkspace?.layout.find(l => l.blockId === block.id)?.x || 0);
+  const layoutY = useWorkspaceStore(state => state.currentWorkspace?.layout.find(l => l.blockId === block.id)?.y || 0);
+
   const style = {
-    transform: `translate3d(${layoutItem.x + (transform?.x || 0)}px, ${layoutItem.y + (transform?.y || 0)}px, 0)`,
+    transform: `translate3d(${layoutX + (transform?.x || 0)}px, ${layoutY + (transform?.y || 0)}px, 0)`,
     zIndex: isDragging ? 50 : 1,
   };
 
@@ -39,19 +48,24 @@ function DraggableBlock({ block, layoutItem }: { block: Block, layoutItem: Layou
             {block.type}
           </span>
         </div>
-        <div className="flex-1 w-full pointer-events-none">
-          <Skeleton className="w-full h-full opacity-60" />
-        </div>
+        
+        <Suspense fallback={<Skeleton className="w-full h-full opacity-60" />}>
+          <LazyBlockContent />
+        </Suspense>
       </Card>
     </motion.div>
   );
-}
+});
 
 export function CanvasArea() {
-  const currentWorkspace = useWorkspaceStore((state) => state.currentWorkspace);
-  const updateBlockPosition = useWorkspaceStore((state) => state.updateBlockPosition);
+  // 4. PERFORMANCE NOTE: Using specific primitive field selectors
+  // Prevents CanvasArea from re-rendering just because a single layout item changes internally during drag
+  const workspaceId = useWorkspaceStore((state) => state.currentWorkspace?.id);
+  const workspaceName = useWorkspaceStore((state) => state.currentWorkspace?.name);
+  const workspaceTheme = useWorkspaceStore((state) => state.currentWorkspace?.theme);
+  const blocks = useWorkspaceStore((state) => state.currentWorkspace?.blocks);
 
-  if (!currentWorkspace) {
+  if (!workspaceId || !blocks) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 dark:bg-[#0b1120] transition-colors duration-300">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center text-center">
@@ -72,9 +86,12 @@ export function CanvasArea() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { delta, active } = event;
     if (delta.x !== 0 || delta.y !== 0) {
+      // Pull state manually bypassing React subscription to avoid global cascading diffs
+      const currentWorkspace = useWorkspaceStore.getState().currentWorkspace;
+      if (!currentWorkspace) return;
       const layoutItem = currentWorkspace.layout.find((l) => l.blockId === active.id);
       if (layoutItem) {
-        updateBlockPosition(active.id as string, layoutItem.x + delta.x, layoutItem.y + delta.y);
+        useWorkspaceStore.getState().updateBlockPosition(active.id as string, layoutItem.x + delta.x, layoutItem.y + delta.y);
       }
     }
   };
@@ -88,26 +105,25 @@ export function CanvasArea() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">{currentWorkspace.name}</h2>
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">{workspaceName}</h2>
             <div className="flex items-center gap-2 mt-2">
               <span className="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10 dark:bg-indigo-400/10 dark:text-indigo-400 dark:ring-indigo-400/30">
-                {currentWorkspace.blocks.length} block{currentWorkspace.blocks.length !== 1 && 's'}
+                {blocks.length} block{blocks.length !== 1 && 's'}
               </span>
               <span className="text-slate-400">&bull;</span>
-              <span className="text-sm font-medium text-slate-500 dark:text-slate-400 capitalize">{currentWorkspace.theme} mode</span>
+              <span className="text-sm font-medium text-slate-500 dark:text-slate-400 capitalize">{workspaceTheme} mode</span>
             </div>
           </motion.div>
 
-          {currentWorkspace.blocks.length === 0 ? (
+          {blocks.length === 0 ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-slate-200 dark:border-slate-800/80 rounded-2xl bg-white/50 dark:bg-slate-900/20">
               <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Your canvas is empty. Add a block from the sidebar to begin.</p>
             </motion.div>
           ) : (
             <div className="grid grid-cols-6 gap-6">
               <AnimatePresence>
-                {currentWorkspace.blocks.map((block) => {
-                  const layoutItem = currentWorkspace.layout.find(l => l.blockId === block.id) || { blockId: block.id, x: 0, y: 0, w: 3, h: 3 };
-                  return <DraggableBlock key={block.id} block={block} layoutItem={layoutItem} />;
+                {blocks.map((block) => {
+                  return <DraggableBlock key={block.id} block={block} />;
                 })}
               </AnimatePresence>
             </div>
