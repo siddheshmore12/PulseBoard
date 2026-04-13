@@ -31,18 +31,20 @@ export function BlockLibrarySidebar() {
       </div>
       <div className="p-4 flex flex-col gap-2">
         {availableBlocks.map((block) => (
-          <motion.div
+          <motion.button
             key={block.type}
             onClick={() => handleAddBlock(block.type, block.label)}
-            whileHover={{ scale: 1.02, x: 2 }}
+            whileHover={{ scale: 1.01, x: 2 }}
             whileTap={{ scale: 0.98 }}
-            className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/50 cursor-pointer shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all duration-200 group"
+            className="flex w-full items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/50 cursor-pointer shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all duration-200 group focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
           >
-            <div className="text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+            <div className="text-slate-400 dark:text-slate-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
               {block.icon}
             </div>
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-200 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors">{block.label}</span>
-          </motion.div>
+            <span className="text-sm font-medium tracking-tight text-slate-700 dark:text-slate-200 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors">
+              {block.label}
+            </span>
+          </motion.button>
         ))}
       </div>
     </aside>
