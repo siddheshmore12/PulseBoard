@@ -1,4 +1,4 @@
-import { Sparkles, BarChart2, Table2, PieChart, Type } from 'lucide-react';
+import { Sparkles, BarChart2, Table2 } from 'lucide-react';
 import type { Block } from '../../types/workspace';
 import { AISummaryBlock } from '../canvas/AISummaryBlock';
 import { AIActions } from '../canvas/AIActions';
@@ -41,32 +41,25 @@ function TextBlockContent({ block }: { block: Block }) {
   const content = typeof block.data.content === 'string' ? block.data.content : '';
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    // update locally, debounce/suppress network noise
     updateBlockData(block.id, { content: e.target.value }, false, true);
   };
 
   const handleTextBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
-    // on blur, fire network synchronization gracefully
     updateBlockData(block.id, { content: e.target.value }, false, false);
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full group/textblock">
       <div className="flex-1 flex flex-col overflow-hidden mb-2 pointer-events-auto">
-        <div className="flex items-center gap-1.5 mb-2">
-          <Type size={12} className="text-slate-400" />
-          <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Text</span>
-        </div>
         <textarea
           value={content}
           onChange={handleTextChange}
           onBlur={handleTextBlur}
           placeholder="Start typing your content here..."
-          onPointerDown={(e) => e.stopPropagation()} // Prevent drag conflict
-          className="flex-1 w-full min-h-[140px] resize-none text-[15px] leading-relaxed font-medium text-slate-800 dark:text-slate-100 bg-transparent border-none focus:outline-none focus:ring-0 p-0 transition-all outline-none placeholder:text-slate-400 placeholder:font-normal"
+          onPointerDown={(e) => e.stopPropagation()} 
+          className="flex-1 w-full min-h-[140px] resize-none text-[15px] leading-relaxed font-normal text-[var(--foreground)] bg-transparent border-none focus:outline-none focus:ring-0 p-0 transition-all outline-none placeholder:text-slate-300 dark:placeholder:text-slate-600"
         />
       </div>
-      {/* AI Actions toolbar — only on text blocks */}
       <AIActions block={block} />
     </div>
   );
@@ -92,24 +85,21 @@ function KPIBlockContent({ block }: { block: Block }) {
   };
 
   return (
-    <div className="flex flex-col h-full justify-center space-y-1.5 pointer-events-auto p-4 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl border-l-4 border-l-indigo-500">
-      <div className="flex items-center gap-1.5 opacity-80">
-        <PieChart size={14} className="text-indigo-600 dark:text-indigo-400 shrink-0" />
-        <input
-          value={label}
-          onChange={(e) => handleChange('label', e.target.value)}
-          onBlur={(e) => handleBlur('label', e.target.value)}
-          onPointerDown={(e) => e.stopPropagation()}
-          className="text-xs uppercase tracking-wider font-semibold text-slate-600 dark:text-slate-400 bg-transparent border-none focus:outline-none focus:ring-0 flex-1 min-w-0 px-0 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600"
-          placeholder="KPI LABEL"
-        />
-      </div>
+    <div className="flex flex-col h-full justify-center space-y-1 pointer-events-auto">
+      <input
+        value={label}
+        onChange={(e) => handleChange('label', e.target.value)}
+        onBlur={(e) => handleBlur('label', e.target.value)}
+        onPointerDown={(e) => e.stopPropagation()}
+        className="text-[11px] uppercase tracking-widest font-semibold text-slate-400 dark:text-slate-500 bg-transparent border-none focus:outline-none focus:ring-0 flex-1 min-w-0 px-0 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-700"
+        placeholder="KPI LABEL"
+      />
       <input
         value={value}
         onChange={(e) => handleChange('value', e.target.value)}
         onBlur={(e) => handleBlur('value', e.target.value)}
         onPointerDown={(e) => e.stopPropagation()}
-        className="text-[34px] font-bold tracking-tight text-slate-900 dark:text-white leading-none bg-transparent border-none focus:outline-none focus:ring-0 w-full min-w-0 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-700"
+        className="text-[48px] font-bold tracking-tight text-[var(--foreground)] leading-none bg-transparent border-none focus:outline-none focus:ring-0 w-full min-w-0 transition-all placeholder:text-slate-200 dark:placeholder:text-slate-800"
         placeholder="0.00"
       />
       <input
@@ -117,10 +107,10 @@ function KPIBlockContent({ block }: { block: Block }) {
         onChange={(e) => handleChange('change', e.target.value)}
         onBlur={(e) => handleBlur('change', e.target.value)}
         onPointerDown={(e) => e.stopPropagation()}
-        className={`text-sm font-semibold bg-transparent border-none focus:outline-none focus:ring-0 w-full min-w-0 transition-all ${
+        className={`text-[13px] font-medium bg-transparent border-none focus:outline-none focus:ring-0 w-full min-w-0 transition-all ${
           change 
-            ? isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' 
-            : 'text-slate-400 dark:text-slate-500 italic'
+            ? isPositive ? 'text-emerald-500' : 'text-rose-500' 
+            : 'text-slate-400 dark:text-slate-600 italic'
         }`}
         placeholder="Trend (e.g. +12% or -5%)"
       />

@@ -64,7 +64,7 @@ export const useWorkspaceStore = create<WorkspaceStore>((set) => ({
       }
     };
   }),
-  removeBlock: (blockId, isRemote = false) => set((state) => {
+  removeBlock: (blockId) => set((state) => {
     if (!state.currentWorkspace) return state;
     return {
       currentWorkspace: {

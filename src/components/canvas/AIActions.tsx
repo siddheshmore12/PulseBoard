@@ -3,7 +3,6 @@ import { useAIStore } from '../../store/aiStore';
 import { useWorkspaceStore } from '../../store/workspaceStore';
 import { runAIAction } from '../../features/ai/aiService';
 import type { Block } from '../../types/workspace';
-import type { AIActionType } from '../../features/ai/types';
 
 // ─── Types ────────────────────────────────────────────────────────────────
 
@@ -35,11 +34,9 @@ export function AIActions({ block }: AIActionsProps) {
   const isLoading = aiState.status === 'loading';
 
   const handleSummarize = async () => {
-    console.log('[AI] click handler entered');
     if (isLoading) return;
 
     const summaryBlockId = `ai-summary-${Date.now()}`;
-    console.log('[AI] Summarize clicked. summaryBlockId:', summaryBlockId);
     addBlock({
       id: summaryBlockId,
       type: 'ai-summary',
@@ -51,35 +48,24 @@ export function AIActions({ block }: AIActionsProps) {
       },
     });
 
-    console.log('[AI] summary block created:', summaryBlockId);
-
-    // 2. Mark source block as loading in aiStore
+    // Mark source block as loading in aiStore
     setLoading(block.id, 'summarize');
 
-    console.log('[AI] AI request started');
     const result = await runAIAction({
       action: 'summarize',
       inputText: getSourceText(block),
       blockTitle: block.title,
     });
-    console.log('[AI] After await runAIAction. Result:', result);
 
     if (result.success && result.content) {
-      // 3a. Success — write summary + flip status to 'success'
-      console.log('[AI] writing summary to block.data.summary');
       updateBlockData(summaryBlockId, { summary: result.content, status: 'success' });
       setSuccess(block.id);
-      console.log('[AI] final state: success');
     } else {
-      // 3b. Failure — write error + flip status to 'error'
-      console.warn('[AI] Generation failed:', result.error);
-      console.log('[AI] updating block id:', summaryBlockId, 'with error state');
       updateBlockData(summaryBlockId, {
         status: 'error',
         error: result.error ?? 'Generation failed.',
       });
       setError(block.id, result.error ?? 'Generation failed.');
-      console.log('[AI] final state: error');
     }
   };
 

@@ -90,12 +90,12 @@ export function BlockLibrarySidebar() {
                 ) : (
                   <button
                     onClick={() => handleAddBlock(item.blockType, item.label)}
-                    className="flex w-full h-full items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/50 cursor-pointer shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md active:scale-95 transition-all duration-200 group focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
+                    className="flex w-full h-full items-center gap-3 px-2 py-2 rounded-lg bg-transparent cursor-pointer active:scale-[0.98] transition-all duration-75 group hover:bg-[var(--foreground)] hover:text-[var(--background)] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                   >
-                    <div className="text-slate-400 dark:text-slate-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                    <div className="text-slate-400 group-hover:text-[var(--background)] transition-colors">
                       {item.icon}
                     </div>
-                    <span className="text-sm font-medium tracking-tight text-slate-700 dark:text-slate-200 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors text-left truncate">
+                    <span className="text-sm font-medium tracking-tight text-[var(--foreground)] group-hover:text-[var(--background)] transition-colors text-left truncate">
                       {item.label}
                     </span>
                   </button>

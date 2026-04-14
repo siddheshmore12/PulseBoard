@@ -19,10 +19,31 @@ const DraggableBlock = React.memo(function DraggableBlock({ block, layoutItem }:
   });
 
   const style = {
-    // Inject hardware-accelerated transform matrix locally protecting parent layout frames
     transform: `translate3d(${layoutItem.x + (transform?.x || 0)}px, ${layoutItem.y + (transform?.y || 0)}px, 0)`,
     zIndex: isDragging ? 50 : 1,
   };
+
+  if (block.type === 'text') {
+    return (
+      <motion.div 
+        ref={setNodeRef} 
+        style={style} 
+        {...listeners} 
+        {...attributes} 
+        initial={{ opacity: 0, scale: 0.96, y: 15 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: -15 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+        className="col-span-6 md:col-span-3 lg:col-span-2 touch-none origin-center"
+      >
+        <div className={`group flex flex-col min-h-[140px] cursor-move transition-all duration-200 rounded-2xl bg-[var(--background)] border border-[var(--border)] ${isDragging ? 'shadow-2xl scale-[1.02] z-50 ring-1 ring-[var(--foreground)] shadow-black/5' : 'hover:border-[var(--foreground)] hover:shadow-sm'}`}>
+          <div className="flex-1 pointer-events-auto p-3">
+            <BlockContent block={block} />
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div 
@@ -37,18 +58,17 @@ const DraggableBlock = React.memo(function DraggableBlock({ block, layoutItem }:
       className="col-span-6 md:col-span-3 lg:col-span-2 touch-none origin-center"
     >
       <Card 
-        className={`p-6 flex flex-col min-h-[220px] cursor-move border transition-all duration-300 bg-white dark:bg-slate-900 ${isDragging ? 'shadow-2xl border-indigo-500 dark:border-indigo-400 scale-[1.03] z-50 ring-2 ring-indigo-500 shadow-indigo-500/20' : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xl hover:-translate-y-1'}`}
+        className={`group p-6 flex flex-col min-h-[220px] cursor-move transition-all duration-300 bg-[var(--background)] ${isDragging ? 'shadow-2xl border-[var(--foreground)] dark:border-[var(--foreground)] scale-[1.02] z-50 ring-1 ring-[var(--foreground)] shadow-black/10' : 'border-[var(--border)] hover:border-[var(--foreground)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)]'}`}
       >
-        <div className="flex items-center justify-between mb-4 pointer-events-none">
-          <h3 className="font-semibold text-slate-800 dark:text-slate-200 tracking-tight text-sm truncate max-w-[160px]">
+        <div className="flex items-center justify-between mb-4 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <h3 className="font-medium text-[var(--foreground)] tracking-tight text-xs uppercase text-slate-500 truncate max-w-[160px]">
             {block.title || `Block (${block.type})`}
           </h3>
-          <span className="shrink-0 text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/80 px-2 py-1 rounded-md">
+          <span className="shrink-0 text-[10px] uppercase font-bold tracking-wider text-slate-400 bg-transparent px-0 py-0">
             {block.type}
           </span>
         </div>
         
-        {/* pointer-events-auto ensures AI action buttons remain clickable */}
         <div className="flex-1 pointer-events-auto">
           <BlockContent block={block} />
         </div>
@@ -94,7 +114,7 @@ export function CanvasArea() {
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <main 
-        className="flex-1 bg-slate-100 dark:bg-slate-900/60 overflow-y-auto p-8 lg:p-12 transition-colors duration-300 relative z-0"
+        className="flex-1 bg-[#fafafa] dark:bg-[#050505] overflow-y-auto p-8 lg:p-12 transition-colors duration-300 relative z-0"
         style={{
           backgroundImage: 'linear-gradient(to right, #8080801a 1px, transparent 1px), linear-gradient(to bottom, #8080801a 1px, transparent 1px)',
           backgroundSize: '32px 32px'

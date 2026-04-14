@@ -1,4 +1,4 @@
-import type { Block, Workspace } from '../../types/workspace';
+import type { Block } from '../../types/workspace';
 
 export type UserStatus = 'idle' | 'editing';
 

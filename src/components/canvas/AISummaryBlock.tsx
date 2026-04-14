@@ -1,5 +1,4 @@
 import { Sparkles, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
-import { motion } from 'framer-motion';
 import type { Block } from '../../types/workspace';
 import type { AISummaryBlockData } from '../../features/ai/types';
 import { useWorkspaceStore } from '../../store/workspaceStore';
